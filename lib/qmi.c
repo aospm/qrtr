@@ -800,6 +800,23 @@ int qmi_decode_header(const struct qrtr_packet *pkt, unsigned int *msg_id)
 	return 0;
 }
 
+int qmi_decode_header2(const struct qrtr_packet *pkt, unsigned int *msg_id, unsigned char *type,
+		       unsigned short *txn_id)
+{
+	const struct qmi_header *qmi = qmi_get_header(pkt);
+	if (!qmi)
+		return -1;
+
+	if (type)
+		*type = qmi->type;
+	if (msg_id)
+		*msg_id = qmi->msg_id;
+	if (txn_id)
+		*txn_id = qmi->txn_id;
+
+	return 0;
+}
+
 /**
  * qmi_decode_message() - Decode QMI encoded message to C structure
  * @buf:	Buffer with encoded message

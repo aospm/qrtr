@@ -157,6 +157,8 @@ int qrtr_decode(struct qrtr_packet *dest, void *buf, size_t len,
 
 const struct qmi_header *qmi_get_header(const struct qrtr_packet *pkt);
 int qmi_decode_header(const struct qrtr_packet *pkt, unsigned int *msg_id);
+int qmi_decode_header2(const struct qrtr_packet *pkt, unsigned int *msg_id, unsigned char *type,
+		       unsigned short *txn_id);
 int qmi_decode_message(void *c_struct, unsigned int *txn,
 		       const struct qrtr_packet *pkt,
 		       int type, int id, struct qmi_elem_info *ei);
