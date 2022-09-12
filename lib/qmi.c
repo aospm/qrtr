@@ -730,14 +730,14 @@ static int qmi_decode(struct qmi_elem_info *ei_array, void *out_c_struct,
 
 /**
  * qmi_encode_message() - Encode C structure as QMI encoded message
+ * @pkt:	QRTR packet to populate
  * @type:	Type of QMI message
  * @msg_id:	Message ID of the message
- * @len:	Passed as max length of the message, updated to actual size
  * @txn_id:	Transaction ID
  * @ei:		QMI message descriptor
  * @c_struct:	Reference to structure to encode
  *
- * Return: Buffer with encoded message, or negative ERR_PTR() on error
+ * Return: Size of encoded data buffer, @pkt contains data.
  */
 ssize_t qmi_encode_message(struct qrtr_packet *pkt, int type, int msg_id,
 			   int txn_id, const void *c_struct,
