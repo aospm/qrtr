@@ -162,9 +162,37 @@ int qmi_decode_header2(const struct qrtr_packet *pkt, unsigned int *msg_id, unsi
 int qmi_decode_message(void *c_struct, unsigned int *txn,
 		       const struct qrtr_packet *pkt,
 		       int type, int id, struct qmi_elem_info *ei);
+/*
+ * Newer versions of QMIC include the qmi_header the qmi_elem_info
+ * in the message struct. The associated init macros for each message
+ * populates these so that the message type/id and qmi_elem_info don't
+ * have to be specified manually.
+ * This is a wrapper around qmi_encode_message() to extract that data
+ * automatically.
+ */
+#define qmi_decode_message2(pkt, txn_id, c_struct) ({ \
+	struct qmi_header *msg_hdr = c_struct->qmi_header; \
+	struct qmi_elem_info *ei = *c_struct->ei; \
+	qmi_decode_message(c_struct, &msg_hdr->txn_id, \
+		pkt, msg_hdr->type, msg_hdr->msg_id, ei); \
+})
 ssize_t qmi_encode_message(struct qrtr_packet *pkt, int type, int msg_id,
 			   int txn_id, const void *c_struct,
 			   struct qmi_elem_info *ei);
+/*
+ * Newer versions of QMIC include the qmi_header the qmi_elem_info
+ * in the message struct. The associated init macros for each message
+ * populates these so that the message type/id and qmi_elem_info don't
+ * have to be specified manually.
+ * This is a wrapper around qmi_encode_message() to extract that data
+ * automatically.
+ */
+#define qmi_encode_message2(pkt, txn_id, c_struct) ({ \
+	struct qmi_header *msg_hdr = c_struct->qmi_header; \
+	struct qmi_elem_info *ei = *c_struct->ei; \
+	qmi_encode_message(pkt, msg_hdr->type, msg_hdr->msg_id, \
+		txn_id, c_struct, ei); \
+})
 
 /* Initial kernel header didn't expose these */
 #ifndef QRTR_NODE_BCAST
