@@ -113,6 +113,19 @@ struct qmi_elem_info {
 	struct qmi_elem_info *ei_array;
 };
 
+/**
+ * struct qmi_message_header - header at the start of each message struct
+ * abstractions some details away from the user and allows for easier debugging
+ * @qmi_header: for encoding or validating
+ * @ei: pointer to qmi_elem_info used for this message
+ * @name: The name of the message for debugging
+ */
+struct qmi_message_header {
+	struct qmi_header qmi_header;
+	struct qmi_elem_info **ei;
+	char *name;
+};
+
 #define QMI_RESULT_SUCCESS_V01                  0
 #define QMI_RESULT_FAILURE_V01                  1
 
@@ -174,12 +187,8 @@ int qmi_decode_message(void *c_struct, unsigned int *txn,
  * This is a wrapper around qmi_encode_message() to extract that data
  * automatically.
  */
-#define qmi_decode_message2(pkt, txn_id, c_struct) ({ \
-	struct qmi_header *msg_hdr = c_struct->qmi_header; \
-	struct qmi_elem_info *ei = *c_struct->ei; \
-	qmi_decode_message(c_struct, &msg_hdr->txn_id, \
-		pkt, msg_hdr->type, msg_hdr->msg_id, ei); \
-})
+ssize_t qmi_decode_message2(struct qrtr_packet *pkt,
+			    struct qmi_message_header *c_struct);
 ssize_t qmi_encode_message(struct qrtr_packet *pkt, int type, int msg_id,
 			   int txn_id, const void *c_struct,
 			   struct qmi_elem_info *ei);
@@ -191,12 +200,8 @@ ssize_t qmi_encode_message(struct qrtr_packet *pkt, int type, int msg_id,
  * This is a wrapper around qmi_encode_message() to extract that data
  * automatically.
  */
-#define qmi_encode_message2(pkt, txn_id, c_struct) ({ \
-	struct qmi_header *msg_hdr = c_struct->qmi_header; \
-	struct qmi_elem_info *ei = *c_struct->ei; \
-	qmi_encode_message(pkt, msg_hdr->type, msg_hdr->msg_id, \
-		txn_id, c_struct, ei); \
-})
+ssize_t qmi_encode_message2(struct qrtr_packet *pkt, int txn_id,
+			    struct qmi_message_header *c_struct);
 
 /* Initial kernel header didn't expose these */
 #ifndef QRTR_NODE_BCAST
