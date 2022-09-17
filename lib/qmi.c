@@ -787,13 +787,20 @@ ssize_t qmi_encode_message(struct qrtr_packet *pkt, int type, int msg_id,
 	return pkt->data_len;
 }
 
-ssize_t qmi_encode_message2(struct qrtr_packet *pkt, int txn_id,
+ssize_t qmi_encode_message2(void *buf, size_t bsz, int txn_id,
 			    struct qmi_message_header *c_struct)
 {
 	struct qmi_header *msg_hdr = &c_struct->qmi_header;
 	struct qmi_elem_info *ei = *c_struct->ei;
-	qmi_encode_message(pkt, msg_hdr->type, msg_hdr->msg_id,
+	struct qrtr_packet pkt = { .data = buf, .data_len = bsz };
+	ssize_t len = qmi_encode_message(&pkt,
+		msg_hdr->type, msg_hdr->msg_id,
 		txn_id, c_struct, ei);
+
+	msg_hdr->txn_id = txn_id;
+	if (len > 0)
+		msg_hdr->msg_len = len - sizeof(struct qmi_header);
+	return len;
 }
 
 const struct qmi_header *qmi_get_header(const struct qrtr_packet *pkt)
@@ -868,13 +875,18 @@ int qmi_decode_message(void *c_struct, unsigned int *txn,
 	return qmi_decode(ei, c_struct, (void*)((char*)pkt->data + sizeof(*hdr)), pkt->data_len - sizeof(*hdr), 1);
 }
 
-ssize_t qmi_decode_message2(struct qrtr_packet *pkt,
+ssize_t qmi_decode_message2(void *buf, size_t bsz,
 			    struct qmi_message_header *c_struct)
 {
 	struct qmi_header *msg_hdr = &c_struct->qmi_header;
 	struct qmi_elem_info *ei = *c_struct->ei;
-	qmi_decode_message(pkt, msg_hdr->type, msg_hdr->msg_id,
-		&msg_hdr->txn_id, c_struct, ei);
+	unsigned int txn_id;
+	struct qrtr_packet pkt = { .data = buf, .data_len = bsz };
+	ssize_t len = qmi_decode_message(c_struct, &txn_id, &pkt,
+		msg_hdr->type, msg_hdr->msg_id, ei);
+
+	msg_hdr->txn_id = txn_id;
+	return len;
 }
 
 /* Common header in all QMI responses */

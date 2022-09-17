@@ -119,10 +119,12 @@ struct qmi_elem_info {
  * @qmi_header: for encoding or validating
  * @ei: pointer to qmi_elem_info used for this message
  * @name: The name of the message for debugging
+ * @service: The QMI service to send this message to.
  */
 struct qmi_message_header {
 	struct qmi_header qmi_header;
 	struct qmi_elem_info **ei;
+	uint16_t service;
 	char *name;
 };
 
@@ -187,7 +189,7 @@ int qmi_decode_message(void *c_struct, unsigned int *txn,
  * This is a wrapper around qmi_encode_message() to extract that data
  * automatically.
  */
-ssize_t qmi_decode_message2(struct qrtr_packet *pkt,
+ssize_t qmi_decode_message2(void *buf, size_t bsz,
 			    struct qmi_message_header *c_struct);
 ssize_t qmi_encode_message(struct qrtr_packet *pkt, int type, int msg_id,
 			   int txn_id, const void *c_struct,
@@ -200,7 +202,7 @@ ssize_t qmi_encode_message(struct qrtr_packet *pkt, int type, int msg_id,
  * This is a wrapper around qmi_encode_message() to extract that data
  * automatically.
  */
-ssize_t qmi_encode_message2(struct qrtr_packet *pkt, int txn_id,
+ssize_t qmi_encode_message2(void *buf, size_t bsz, int txn_id,
 			    struct qmi_message_header *c_struct);
 
 /* Initial kernel header didn't expose these */
