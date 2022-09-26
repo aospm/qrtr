@@ -791,7 +791,7 @@ ssize_t qmi_encode_message2(void *buf, size_t bsz, int txn_id,
 			    struct qmi_message_header *c_struct)
 {
 	struct qmi_header *msg_hdr = &c_struct->qmi_header;
-	struct qmi_elem_info *ei = *c_struct->ei;
+	struct qmi_elem_info *ei = c_struct->ei;
 	struct qrtr_packet pkt = { .data = buf, .data_len = bsz };
 	ssize_t len = qmi_encode_message(&pkt,
 		msg_hdr->type, msg_hdr->msg_id,
@@ -879,7 +879,7 @@ ssize_t qmi_decode_message2(void *buf, size_t bsz,
 			    struct qmi_message_header *c_struct)
 {
 	struct qmi_header *msg_hdr = &c_struct->qmi_header;
-	struct qmi_elem_info *ei = *c_struct->ei;
+	struct qmi_elem_info *ei = c_struct->ei;
 	unsigned int txn_id;
 	struct qrtr_packet pkt = { .data = buf, .data_len = bsz };
 	ssize_t len = qmi_decode_message(c_struct, &txn_id, &pkt,

@@ -123,7 +123,7 @@ struct qmi_elem_info {
  */
 struct qmi_message_header {
 	struct qmi_header qmi_header;
-	struct qmi_elem_info **ei;
+	struct qmi_elem_info *ei;
 	uint16_t service;
 	char *name;
 };
